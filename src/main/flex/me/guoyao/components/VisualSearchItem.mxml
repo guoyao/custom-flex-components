@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  xmlns:components="me.guoyao.components.*"
+					  height="100%"
+					  skinClass="me.guoyao.components.skins.VisualSearchItemSkin">
+	<fx:Metadata>
+		[Event(name="remove", type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import me.guoyao.models.ISelectAble;
+			import me.guoyao.models.VisualSearchLabelItem;
+			
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable]
+			public var labelField:String = "label";
+			
+			[Bindable]
+			private var conditionsFormattedText:String;
+			
+			[Bindable]
+			public var data:VisualSearchLabelItem;
+			
+			private function dropDownListChangeHandler(event:IndexChangeEvent):void
+			{
+				if(!data.multiSelectAble)
+				{
+					conditionsFormattedText = data.list.getItemAt(event.newIndex)[labelField];
+					textInput.closeDropDown(true);
+				}
+			}
+			
+			private function textInputDropDownOpenHandler():void
+			{
+				(owner as VisualSearch).closeDropDown(false);
+			}
+			
+			private function textInputDropDownCloseHandler():void
+			{
+				if(data.multiSelectAble)
+				{
+					var result:String = "";
+					for each(var item:ISelectAble in data.list)
+					{
+						if(item.selected)
+							result += item[labelField] + ",";
+					}
+					conditionsFormattedText = result.substr(0, result.length - 1);
+				}
+				(owner as VisualSearch).itemCloseHandler(data);
+			}
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:HorizontalLayout verticalAlign="middle" 
+							paddingLeft="8" 
+							paddingRight="8"/>
+	</s:layout>
+	<s:Button buttonMode="true"
+			  width="16"
+			  height="16"
+			  click="dispatchEvent(new Event('remove'))"/>
+	<s:Label text="{data.label}: "/>
+	<components:DropDownTextInput id="textInput"
+								  height="100%"
+								  autoFocus="true"
+								  focusAlpha="0"
+								  borderVisible="false"
+								  contentBackgroundAlpha="0"
+								  dropDownDropShadowVisible="true"
+								  dropDownBorderVisible="true"
+								  dropDownBorderColor="#ffffff"
+								  dropDownBorderAlpha="0.5"
+								  dropDownContentBackgroundColor="#ffffff"
+								  dropDownContentBackgroundAlpha="0.3"
+								  dataProvider="{data.list}"
+								  labelField="{labelField}"
+								  multiSelectAble="{data.multiSelectAble}"
+								  label="{conditionsFormattedText}"
+								  skinClass="me.guoyao.components.skins.VisualSearchItemTextInputSkin"
+								  change="dropDownListChangeHandler(event)"
+								  open="textInputDropDownOpenHandler()"
+								  close="textInputDropDownCloseHandler()"/>
+</s:SkinnableContainer>
